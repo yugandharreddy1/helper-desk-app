@@ -307,7 +307,7 @@ export default function HomeScreen(props) {
                 <Icon as={MaterialCommunityIcons} name="email" size={5} />
               }
             >
-              Send Helper's Email Notification
+              Send Helper's Email Notification!
             </Button>
           </VStack>
         </Center>
