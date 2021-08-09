@@ -11,6 +11,7 @@ if (!global.btoa) {
 if (!global.atob) {
   global.atob = decode;
 }
+import logo from "./Capture.JPG";
 
 const Stack = createStackNavigator();
 
@@ -27,8 +28,10 @@ export default function App() {
           .get()
           .then((document) => {
             const userData = document.data();
+
             setLoading(false);
             setUser(userData);
+            console.log(String(document.data()));
           })
           .catch((error) => {
             setLoading(false);
@@ -47,7 +50,16 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          <Stack.Screen name="Home">
+          <Stack.Screen
+            name="volunteer Connect"
+            options={{
+              title: "VolunteerConnect Page", //Set Header Title
+              headerMode: "none",
+              navigationOptions: {
+                headerVisible: false,
+              },
+            }}
+          >
             {(props) => <HomeScreen {...props} extraData={user} />}
           </Stack.Screen>
         ) : (
