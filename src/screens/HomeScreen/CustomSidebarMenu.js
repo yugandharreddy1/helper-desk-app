@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView, View, StyleSheet, Text } from "react-native";
 
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-
+//import { Text } from "native-base";
 const CustomSidebarMenu = (props) => {
   const { state, descriptors, navigation } = props;
   let lastGroupName = "";
@@ -10,7 +10,9 @@ const CustomSidebarMenu = (props) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Text>Event Details</Text>
+      <Text bold position="absolute" color="white" top={0} m={[4, 4, 8]}>
+        Volunteer Connect
+      </Text>
       <DrawerContentScrollView {...props}>
         {state.routes.map((route) => {
           const { drawerLabel, activeTintColor, groupName } =

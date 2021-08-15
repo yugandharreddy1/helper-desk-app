@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { firebase } from "../../firebase/config";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import axios from "axios";
 import {
   NativeBaseProvider,
   Container,
   VStack,
-  Stack,
   Select,
   CheckIcon,
   IconButton,
-  Center,
   Divider,
   HStack,
   Box,
@@ -20,14 +18,9 @@ import {
   Button,
   Icon,
   Input,
-  Fab,
-  Modal,
+  useToast,
 } from "native-base";
-import {
-  MaterialCommunityIcons,
-  FontAwesome5,
-  AntDesign,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
 import { DataTable } from "react-native-paper";
 import logo from "./Capture.JPG";
 export default function Home(props) {
@@ -40,9 +33,16 @@ export default function Home(props) {
     "activityBooked",
     "activityBookedUser",
   ];
+  const quantityValues = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+  const [noOfPeople, setnoOfPeople] = React.useState("");
   const [tasks, setTasks] = React.useState([]);
+  const [eventName, seteventName] = React.useState("");
+  const [Events, setEvents] = React.useState([]);
+  const [activityName, setactivityName] = React.useState("");
+  const [Activitys, setActivitys] = React.useState([]);
   const emailIds = [];
-  const [date, setDate] = useState("");
+  const [eventStartDate, seteventStartDate] = useState("");
+  const [eventEndDate, seteventEndDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [list, setList] = React.useState(emailIds);
   const [inputValue, setInputValue] = React.useState("");
@@ -60,9 +60,22 @@ export default function Home(props) {
     const temp = list.filter((_, itemI) => itemI !== index);
     setList(temp);
   };
-
-  const [selectedActVal, setSelectedActVal] = useState("");
   useEffect(() => {
+    const eventRef = firebase
+      .firestore()
+      .collection("Helper-app-data")
+      .doc("Events")
+      .get()
+      .then((snapshot) => {
+        const data = snapshot.data();
+        console.log(snapshot.id, data.eventlist);
+        setEvents(data.eventlist.sort());
+        setActivitys(data.teamList.sort());
+      })
+      .catch((err) => {
+        console.log("Error getting documents", err);
+      });
+
     axios.defaults.headers.post["Content-Type"] =
       "application/x-www-form-urlencoded";
     const apiUrl = "http://localhost:9001/events/";
@@ -86,12 +99,15 @@ export default function Home(props) {
   const sendEvents = () => {
     for (let i = 0; i < groupValue.length; i++) {
       let json = JSON.stringify({
-        activityName: selectedActVal,
-        activityDate: date,
+        eventName: eventName,
+        activityName: activityName,
+        noOfPeople: noOfPeople.valueOf(),
+        eventStartDate: eventStartDate,
+        eventEndDate: eventEndDate,
         activityTime: groupValue[i],
         activityAllUsers: JSON.stringify(list),
       });
-      console.log(json.toString);
+      console.log(json.valueOf());
       // axios.defaults.headers.post["Content-Type"] = "application/json";
       // const apiUrl = "http://localhost:9001/events/setEvent";
       // axios.post(apiUrl, json).then((repos) => {
@@ -107,6 +123,7 @@ export default function Home(props) {
         },
       });
     }
+    alert("Sucessfuly sent");
   };
 
   const [groupValue, setGroupValue] = React.useState([]);
@@ -130,43 +147,154 @@ export default function Home(props) {
   });
   return (
     <NativeBaseProvider>
-      <Container alignItems="center">
-        <Center>
-          <VStack alignItems="center" space={4}>
-            <Divider></Divider>
+      <Heading mt={3} bg="emerald.50">
+        Create Event Notification
+      </Heading>
+      <Container
+        alignItems="center"
+        space={4}
+        p={[4, 4, 8]}
+        bg="white"
+        safeArea
+        minHeight={"100%"}
+        minWidth={"100%"}
+        bg="emerald.50"
+        rounded="md"
+        shadow={3}
+      >
+        <VStack space={4}>
+          <HStack space={3} alignItems="center">
             <Select
-              bg="primary.200"
-              selectedValue={selectedActVal}
-              minWidth={200}
-              accessibilityLabel="Select your Activity"
-              placeholder="Select your Activity"
-              onValueChange={(itemValue) => setSelectedActVal(itemValue)}
+              bg="primary.300"
+              selectedValue={eventName}
+              maxWidth={400}
+              accessibilityLabel="Select your Event"
+              placeholder="Select your Event"
+              onValueChange={(itemValue) => seteventName(itemValue)}
               _selectedItem={{
                 bg: "cyan.600",
                 endIcon: <CheckIcon size={4} />,
               }}
             >
-              <Select.Item label="Cooking" value="Cooking" />
-              <Select.Item label="Driving" value="Driving" />
-              <Select.Item label="Cleaning" value="Cleaning" />
-              <Select.Item label="Sorting" value="Sorting" />
-              <Select.Item label="Searching" value="Searching" />
+              {Events.map((item) => (
+                <Select.Item label={item} value={item} />
+              ))}
             </Select>
-            <Divider></Divider>
-            <HStack mb={3}>
-              <Heading mt={3}>Select Date and Timings </Heading>
-            </HStack>
-            <HStack space={3} alignItems="center">
-              <Heading size="md">Date :</Heading>
+            <Input
+              variant="filled"
+              width="100%"
+              InputRightElement={
+                <IconButton
+                  icon={<Icon as={FontAwesome5} name="plus" size={4} />}
+                  colorScheme="emerald"
+                  ml={1}
+                  onPress={() => {
+                    Events.push(eventName);
+                    var Ref = firebase
+                      .firestore()
+                      .collection("Helper-app-data")
+                      .doc("Events");
+                    Ref.update({
+                      eventlist:
+                        firebase.firestore.FieldValue.arrayUnion(eventName),
+                    });
+                    seteventName("");
+                  }}
+                  mr={1}
+                />
+              }
+              onChangeText={(v) => seteventName(v)}
+              value={eventName}
+              placeholder="Add new events to the exisitng list"
+            />
+          </HStack>
+          <Divider></Divider>
+          <HStack space={3} alignItems="center">
+            <Select
+              bg="primary.300"
+              selectedValue={activityName}
+              maxWidth={400}
+              accessibilityLabel="Select your Activity/team"
+              placeholder="Select your Activity/team"
+              onValueChange={(itemValue) => setactivityName(itemValue)}
+              _selectedItem={{
+                bg: "cyan.600",
+                endIcon: <CheckIcon size={4} />,
+              }}
+            >
+              {Activitys.map((item) => (
+                <Select.Item label={item} value={item} />
+              ))}
+            </Select>
+            <Input
+              variant="filled"
+              width="100%"
+              InputRightElement={
+                <IconButton
+                  icon={<Icon as={FontAwesome5} name="plus" size={4} />}
+                  colorScheme="emerald"
+                  ml={1}
+                  onPress={() => {
+                    Activitys.push(activityName);
+                    var Ref = firebase
+                      .firestore()
+                      .collection("Helper-app-data")
+                      .doc("Events");
+                    Ref.update({
+                      teamList:
+                        firebase.firestore.FieldValue.arrayUnion(activityName),
+                    });
+                    setactivityName("");
+                  }}
+                  mr={1}
+                />
+              }
+              onChangeText={(v) => setactivityName(v)}
+              value={activityName}
+              placeholder="Add new Activity/team to the exisitng list"
+            />
+          </HStack>
+          <Divider></Divider>
+          <HStack mb={3} space={3}>
+            <Heading size="md">
+              Number of People Requred for this activity/Team :
+            </Heading>
+            <Select
+              bg="primary.300"
+              selectedValue={noOfPeople}
+              maxWidth={400}
+              accessibilityLabel="Select a number"
+              placeholder="Select a number"
+              onValueChange={(itemValue) => setnoOfPeople(itemValue)}
+              _selectedItem={{
+                bg: "cyan.600",
+                endIcon: <CheckIcon size={4} />,
+              }}
+            >
+              {quantityValues.map((item) => (
+                <Select.Item label={item} value={item} />
+              ))}
+            </Select>
+          </HStack>
+          <Divider></Divider>
+          <HStack mb={3} space={3}>
+            <Heading size="md">Event Start Date :</Heading>
 
-              <input
-                type="date"
-                name="date"
-                onChange={(event) => setDate(event.target.value)}
-              />
-            </HStack>
-          </VStack>
-          <Box justifyContent="center">
+            <input
+              type="date"
+              name="date"
+              onChange={(event) => seteventStartDate(event.target.value)}
+            />
+            <Heading size="md">Event End Date :</Heading>
+
+            <input
+              type="date"
+              name="date"
+              onChange={(event) => seteventEndDate(event.target.value)}
+            />
+          </HStack>
+
+          <Box alignItems="center">
             <Box>
               <Checkbox.Group
                 colorScheme="green"
@@ -175,101 +303,30 @@ export default function Home(props) {
                   setGroupValue(values || []);
                 }}
               >
-                <HStack space={3} alignItems="center">
-                  <Checkbox value="00:00-01:00" my={1}>
-                    00:00-01:00
+                <VStack space={3} alignItems="left">
+                  <Checkbox value="Early Morning" my={1}>
+                    Early Morning (05:00 AM to 09:00 AM)
                   </Checkbox>
-                  <Checkbox value="01:00-02:00" my={1}>
-                    01:00-02:00
+                  <Checkbox value="Morning" my={1}>
+                    Morning (09:00 AM to 12:00 PM)
                   </Checkbox>
-                  <Checkbox value="02:00-03:00" my={1}>
-                    02:00-03:00
+                  <Checkbox value="Afternoon" my={1}>
+                    Afternoon (12:00 PM to 03:00 PM)
                   </Checkbox>
-                  <Checkbox value="03:00-04:00" my={1}>
-                    03:00-04:00
+                  <Checkbox value="Evening" my={1}>
+                    Evening (03:00 PM to 06:00 PM)
                   </Checkbox>
-                  <Checkbox value="04:00-05:00" my={1}>
-                    04:00-05:00
+                  <Checkbox value="Late Evening" my={1}>
+                    Late Evening (06:00 PM to 09:00 PM)
                   </Checkbox>
-                  <Checkbox value="05:00-06:00" my={1}>
-                    05:00-06:00
-                  </Checkbox>
-                </HStack>
-                <HStack space={3} alignItems="center">
-                  <Checkbox value="06:00-07:00" my={1}>
-                    06:00-07:00
-                  </Checkbox>
-
-                  <Checkbox value="07:00-08:00" my={1}>
-                    07:00-08:00
-                  </Checkbox>
-                  <Checkbox value="08:00-09:00" my={1}>
-                    08:00-09:00
-                  </Checkbox>
-                  <Checkbox value="09:00-10:00" my={1}>
-                    09:00-10:00
-                  </Checkbox>
-                  <Checkbox value="10:00-11:00" my={1}>
-                    10:00-11:00
-                  </Checkbox>
-                  <Checkbox value="11:00-12:00" my={1}>
-                    11:00-12:00
-                  </Checkbox>
-                </HStack>
-                <HStack space={3} alignItems="center">
-                  <Checkbox value="12:00-13:00" my={1}>
-                    12:00-13:00
-                  </Checkbox>
-
-                  <Checkbox value="13:00-14:00" my={1}>
-                    13:00-14:00
-                  </Checkbox>
-                  <Checkbox value="14:00-15:00" my={1}>
-                    14:00-15:00
-                  </Checkbox>
-                  <Checkbox value="15:00-16:00" my={1}>
-                    15:00-16:00
-                  </Checkbox>
-                  <Checkbox value="16:00-17:00" my={1}>
-                    16:00-17:00
-                  </Checkbox>
-                  <Checkbox value="17:00-18:00" my={1}>
-                    17:00-18:00
-                  </Checkbox>
-                </HStack>
-                <HStack space={3} alignItems="center">
-                  <Checkbox value="18:00-19:00" my={1}>
-                    18:00-19:00
-                  </Checkbox>
-
-                  <Checkbox value="19:00-20:00" my={1}>
-                    19:00-20:00
-                  </Checkbox>
-                  <Checkbox value="20:00-21:00" my={1}>
-                    20:00-21:00
-                  </Checkbox>
-                  <Checkbox value="21:00-22:00" my={1}>
-                    21:00-22:00
-                  </Checkbox>
-                  <Checkbox value="22:00-23:00" my={1}>
-                    22:00-23:00
-                  </Checkbox>
-                  <Checkbox value="23:00-24:00" my={1}>
-                    23:00-24:00
-                  </Checkbox>
-                </HStack>
+                </VStack>
               </Checkbox.Group>
             </Box>
           </Box>
-          <Divider></Divider>
-
-          <Text fontSize="md" bold>
-            {getSelectedGroupValue()}
-          </Text>
 
           <Divider></Divider>
           <HStack mb={3}>
-            <Heading mt={3}>Add Emails to send</Heading>
+            <Heading size="md">Add Emails to send</Heading>
           </HStack>
           <VStack space={4} flex={1} w="90%" mt={4}>
             <Input
@@ -321,57 +378,7 @@ export default function Home(props) {
               Send volunteer's Email Notification!
             </Button>
           </VStack>
-        </Center>
-        <Fab
-          onPress={() => getEvents()}
-          placement="top-right"
-          icon={<Icon color="white" as={<AntDesign name="plus" />} size={4} />}
-          label={
-            <Text color="white" fontSize="sm">
-              Get Event Details
-            </Text>
-          }
-        />
-
-        <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-          <Modal.Content maxWidth="800px">
-            <Modal.CloseButton />
-            <Modal.Header>Event Details</Modal.Header>
-            <Modal.Body>
-              <DataTable>
-                <DataTable.Header>
-                  {HeadTable.map((item) => (
-                    <DataTable.Title>{item}</DataTable.Title>
-                  ))}
-                </DataTable.Header>
-                {tasks.map((item) => (
-                  <DataTable.Row>
-                    <DataTable.Cell>{item.eventId}</DataTable.Cell>
-                    <DataTable.Cell>{item.activityName}</DataTable.Cell>
-                    <DataTable.Cell>{item.activityDate}</DataTable.Cell>
-                    <DataTable.Cell>{item.activityTime}</DataTable.Cell>
-                    <DataTable.Cell>{item.activityAllUsers}</DataTable.Cell>
-                    <DataTable.Cell>
-                      {String(item.activityBooked)}
-                    </DataTable.Cell>
-                    <DataTable.Cell>{item.activityBookedUser}</DataTable.Cell>
-                  </DataTable.Row>
-                ))}
-              </DataTable>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button.Group variant="ghost" space={2}>
-                <Button
-                  onPress={() => {
-                    setShowModal(false);
-                  }}
-                >
-                  Close
-                </Button>
-              </Button.Group>
-            </Modal.Footer>
-          </Modal.Content>
-        </Modal>
+        </VStack>
       </Container>
     </NativeBaseProvider>
   );

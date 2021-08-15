@@ -8,6 +8,9 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import Home from "./Home";
 import VolunteerHistoryPage from "./VolunteerHistoryPage";
 import SendCoustomEmail from "./SendCoustomEmail";
+import Userdashboard from "./Userdashboard";
+import Donate from "./Donate";
+import OurRecentActivities from "./OurRecentActivities";
 import logo from "./Capture.JPG";
 // Import Custom Sidebar
 import CustomSidebarMenu from "./CustomSidebarMenu";
@@ -38,6 +41,31 @@ export default function HomeScreen(props) {
     );
   };
 
+  function UserDashboardStack({ navigation }) {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="User Dashboard"
+          component={Userdashboard}
+          initialParams={{ id: props.extraData.id }}
+          options={{
+            title: "User Dashboard", //Set Header Title
+            headerMode: "none",
+            navigationOptions: {
+              headerVisible: false,
+            },
+            headerStyle: {
+              backgroundColor: "#f4511e", //Set Header color
+            },
+            headerTintColor: "#fff", //Set Header text color
+            headerTitleStyle: {
+              fontWeight: "bold", //Set Header text style
+            },
+          }}
+        />
+      </Stack.Navigator>
+    );
+  }
   function homeScreenStack({ navigation }) {
     return (
       <Stack.Navigator initialRouteName="Home">
@@ -63,6 +91,55 @@ export default function HomeScreen(props) {
     );
   }
 
+  function DonateScreenStack({ navigation }) {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Donate for a cause"
+          component={Donate}
+          options={{
+            title: "Donate for a cause", //Set Header Title
+            headerMode: "none",
+            navigationOptions: {
+              headerVisible: false,
+            },
+            headerStyle: {
+              backgroundColor: "#f4511e", //Set Header color
+            },
+            headerTintColor: "#fff", //Set Header text color
+            headerTitleStyle: {
+              fontWeight: "bold", //Set Header text style
+            },
+          }}
+        />
+      </Stack.Navigator>
+    );
+  }
+
+  function OurRecentActivitiesScreenStack({ navigation }) {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Our Recent Activities"
+          component={OurRecentActivities}
+          options={{
+            title: "Our Recent Activities", //Set Header Title
+            headerMode: "none",
+            navigationOptions: {
+              headerVisible: false,
+            },
+            headerStyle: {
+              backgroundColor: "#f4511e", //Set Header color
+            },
+            headerTintColor: "#fff", //Set Header text color
+            headerTitleStyle: {
+              fontWeight: "bold", //Set Header text style
+            },
+          }}
+        />
+      </Stack.Navigator>
+    );
+  }
   function VolunteerHistoryScreenStack({ navigation }) {
     return (
       <Stack.Navigator
@@ -141,7 +218,7 @@ export default function HomeScreen(props) {
   const userID = props.extraData.id;
   return (
     <NavigationContainer independent={true}>
-      {userID == "OhgawOXViSfOCwYucryAgouIGWm1" ? (
+      {userID == "pacEK1GMbKVTwL36mLq7CJ9UsrJ3" ? (
         <Drawer.Navigator
           // For setting Custom Sidebar Menu
           drawerContent={(props) => <CustomSidebarMenu {...props} />}
@@ -155,9 +232,9 @@ export default function HomeScreen(props) {
             component={homeScreenStack}
           />
           <Drawer.Screen
-            name="Volunteer History"
+            name="Event History"
             options={{
-              drawerLabel: "Volunteer History",
+              drawerLabel: "Event History",
               // Section/Group Name
               activeTintColor: "#e91e63",
             }}
@@ -179,30 +256,30 @@ export default function HomeScreen(props) {
           drawerContent={(props) => <CustomSidebarMenu {...props} />}
         >
           <Drawer.Screen
-            name="User d"
+            name="User Dashboard"
             options={{
-              drawerLabel: "Admin Dashboard",
+              drawerLabel: "User Dashboard",
               activeTintColor: "#e91e63",
             }}
-            component={homeScreenStack}
+            component={UserDashboardStack}
           />
           <Drawer.Screen
-            name="Volunteer History"
+            name="Our Recent Activities"
             options={{
-              drawerLabel: "Volunteer History",
+              drawerLabel: "Our Recent Activities",
               // Section/Group Name
               activeTintColor: "#e91e63",
             }}
-            component={VolunteerHistoryScreenStack}
+            component={OurRecentActivitiesScreenStack}
           />
           <Drawer.Screen
-            name="Send Coustom Email"
+            name="Donate for a cause"
             options={{
-              drawerLabel: "Send Coustom Email",
+              drawerLabel: "Donate for a cause",
               // Section/Group Name
               activeTintColor: "#e91e63",
             }}
-            component={SendCoustomEmailScreenStack}
+            component={DonateScreenStack}
           />
         </Drawer.Navigator>
       )}
