@@ -8,7 +8,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import Home from "./Home";
 import VolunteerHistoryPage from "./VolunteerHistoryPage";
 import SendCoustomEmail from "./SendCoustomEmail";
-import Userdashboard from "./Userdashboard";
+import Userdashboard from "./userDashboard";
 import Donate from "./Donate";
 import OurRecentActivities from "./OurRecentActivities";
 import logo from "./Capture.JPG";
