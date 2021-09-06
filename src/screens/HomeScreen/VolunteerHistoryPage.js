@@ -20,7 +20,7 @@ export default function VolunteerHistoryPage(props) {
   useEffect(() => {
     axios.defaults.headers.post["Content-Type"] =
       "application/x-www-form-urlencoded";
-    const apiUrl = "http://localhost:9001/events/";
+    const apiUrl = "https://spring-boot-helper.herokuapp.com/events/";
     axios.get(apiUrl).then((repos) => {
       console.log(repos.data);
       setTasks(repos.data);
