@@ -78,7 +78,7 @@ export default function Home(props) {
 
     axios.defaults.headers.post["Content-Type"] =
       "application/x-www-form-urlencoded";
-    const apiUrl = "http://localhost:9001/events/";
+    const apiUrl = "https://spring-boot-helper.herokuapp.com/events/";
     axios.get(apiUrl).then((repos) => {
       console.log(repos.data);
       setTasks(repos.data);
@@ -88,7 +88,7 @@ export default function Home(props) {
   let getEvents = () => {
     axios.defaults.headers.post["Content-Type"] =
       "application/x-www-form-urlencoded";
-    const apiUrl = "http://localhost:9001/events/";
+    const apiUrl = "https://spring-boot-helper.herokuapp.com/events/";
     axios.get(apiUrl).then((repos) => {
       console.log(repos.data);
       setTasks(repos.data);
@@ -116,7 +116,7 @@ export default function Home(props) {
       axios.defaults.headers.post["Content-Type"] = "application/json";
       axios({
         method: "post",
-        url: "http://localhost:9001/events/setEvent",
+        url: "https://spring-boot-helper.herokuapp.com/events/setEvent",
         data: json,
         headers: {
           Accept: "application/json ,text/plain, */*",
